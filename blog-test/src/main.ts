@@ -5,8 +5,6 @@ import router from './router'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-
-// Importe os estilos do Material Design Icons
 import '@mdi/font/css/materialdesignicons.css'
 
 const app = createApp(App)
@@ -19,9 +17,6 @@ const vuetify = createVuetify({
   directives,
   icons: {
     defaultSet: 'mdi'
-  },
-  theme: {
-    defaultTheme: 'dark'
   }
 })
 

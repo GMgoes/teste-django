@@ -2,10 +2,10 @@
   <div>
     <v-container>
       <v-row style="flex-direction: column; align-items: center">
-        <v-col v-for="post in feed" :key="post.id" cols="12" md="4">
-          <v-card class="mx-auto elevation-12" max-width="468">
-            <v-img class="align-end" height="585" width="468" :src="post.midia" cover></v-img>
-            <v-card-text style="font-size: 1rem">
+        <v-col v-for="post in feed" :key="post.id" md="4">
+          <v-card class="mx-auto elevation-12" style="background-color: #242323">
+            <v-img class="align-end" height="585" :src="post.midia" cover></v-img>
+            <v-card-text style="font-size: 1rem; color: floralwhite">
               <div style="max-height: fit-content; min-height: 2rem">{{ post.description }}</div>
               <div>{{ post.locate }}</div>
               <div>Postado em {{ formatDate(post.date_post) }}</div>
@@ -14,25 +14,36 @@
                 Publicação de: <strong>{{ post.author }}</strong>
               </div>
             </v-card-text>
-            <v-btn
-              icon
-              style="margin-left: 0.5rem; margin-bottom: 0.8rem"
-              color="red-lighten-2"
-              @click="like(post)"
-            >
+            <v-btn style="margin-left: 0.5rem; margin-bottom: 0.8rem" @click="like(post)">
               <v-icon>mdi-heart-outline</v-icon>
             </v-btn>
-            <v-btn
-              icon
-              disabled
-              style="margin-left: 0.5rem; margin-bottom: 0.8rem"
-              color="red-lighten-2"
-            >
+            <v-btn disabled style="margin-left: 0.5rem; margin-bottom: 0.8rem">
               <v-icon>mdi-share-variant-outline</v-icon>
             </v-btn>
           </v-card>
         </v-col>
       </v-row>
+      <v-layout class="overflow-visible" style="height: 56px">
+        <v-bottom-navigation :elevation="12" grow style="background-color: #212121">
+          <v-btn value="recent" style="color: white">
+            <v-icon>mdi-chat</v-icon>
+
+            <span>Conversas</span>
+          </v-btn>
+
+          <v-btn value="favorites" style="color: white">
+            <v-icon>mdi-heart</v-icon>
+
+            <span>Notificações</span>
+          </v-btn>
+
+          <v-btn value="nearby" style="color: white">
+            <v-icon>mdi-compass-outline</v-icon>
+
+            <span>Explorar</span>
+          </v-btn>
+        </v-bottom-navigation>
+      </v-layout>
     </v-container>
   </div>
 </template>
@@ -49,12 +60,14 @@ interface Post {
   likes: number
   date_post: string
   author: string
+  liked: boolean
 }
 
 export default defineComponent({
   data() {
     return {
-      feed: [] as Post[]
+      feed: [] as Post[],
+      value: 1
     }
   },
   mounted() {
@@ -64,7 +77,10 @@ export default defineComponent({
     async fetchFeed(): Promise<void> {
       try {
         const response = await axios.get('http://127.0.0.1:8000')
-        this.feed = response.data.posts
+        this.feed = response.data.posts.map((post: Post) => ({
+          ...post,
+          liked: false
+        }))
       } catch (error: any) {
         console.error(error.message)
       }
@@ -84,12 +100,18 @@ export default defineComponent({
         const index = this.feed.findIndex((p: any) => p.id === post.id)
         if (index !== -1) {
           this.feed[index] = updatedPost.data
+          this.feed[index].liked = true
+          this.playClickSound()
         }
       } catch (error: any) {
         console.error(error.message)
       }
+    },
+    share() {},
+    playClickSound() {
+      const audio = new Audio('src/assets/audiocutter_facebook-like-sound-effect2.mp3')
+      audio.play()
     }
   }
 })
 </script>
-<style scoped></style>
